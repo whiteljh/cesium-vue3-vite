@@ -1,6 +1,6 @@
 import * as Cesium from "cesium";
-//火焰特效，//TODO:如何让火焰在摄像机移动一段距离后消失？解答：
-// 粒子系统在Cesium中是通过Cesium.ParticleSystem类实现的。如果你想让火焰特效在一定距离后消失，你可以通过调整粒子的生命周期（life time）或者发射速率（emission rate）来实现这一效果。
+//火焰特效，//NOTE：如何让火焰在摄像机移动一段距离后消失？解答：
+// 粒子系统在Cesium中是通过Cesium.ParticleSystem类实现的。如果你想让火焰特效在一定距离后消失，你可以通过调整粒子的生命周期（life time）或者发射速率（emission rate）来实现这一效果。（并没有乱用）
 
 // 一种简单的方法是设置一个较小的最大生命值（maximum particle life），这样粒子就会更快地消散。例如：
 
@@ -17,7 +17,7 @@ import * as Cesium from "cesium";
 
 // Cesium.Camera.DEFAULT_VIEW_FACTOR = 1000; // 设置摄像机距离物体的默认视图因子为1000米
 // var camera = viewer.scene.camera;
-// camera.positionCartographicChanged.addEventListener(function() {
+// camera.changed.addEventListener(function() {
 //     if (Cesium.Cartesian3.distance(camera.positionWC, someObjectPosition) > 1000) {
 //         particleSystem.emissionRate = 0; // 当摄像机远离物体超过1000米时停止发射粒子
 //     } else {
@@ -162,21 +162,25 @@ export default class FireEffect {
     );
     this.particleSystem = particleSystem;
     this.preUpdateEvent();
-    this.camera.changed.addEventListener(() => {
-      const distance = Cesium.Cartesian3.distance(
-        this.camera.positionWC,
-        this.entity.position._value
-      );
-      console.log("distance: ", distance);
-
-      if (distance > 1000) {
-        particleSystem.emissionRate = 0; // 当摄像机远离物体超过1000米时停止发射粒子
-      } else {
-        particleSystem.emissionRate = 5; // 在一定范围内恢复粒子的正常发射率
-      }
-    });
+    //NOTE：添加相机监听事件，火焰随相机距离变化而变化
+    this.cameraChangedCallback = this.cameraChanged.bind(this);
+    this.camera.changed.addEventListener(this.cameraChangedCallback);
     //也可以使用 帧(渲染)监听代替相机监听事件
     // this.viewer.scene.postRender.addEventListener(() => {});
+  }
+
+  cameraChanged() {
+    const distance = Cesium.Cartesian3.distance(
+      this.camera.positionWC,
+      this.entity.position._value
+    );
+    console.log("distance: ", distance);
+
+    if (distance > 1000) {
+      this.particleSystem.emissionRate = 0;
+    } else {
+      this.particleSystem.emissionRate = 5;
+    }
   }
 
   //场景渲染事件
@@ -225,6 +229,7 @@ export default class FireEffect {
 
   removeEvent() {
     this.viewer.scene.preUpdate.removeEventListener(this.preUpdateEvent, this);
+
     this.emitterModelMatrix = undefined;
     this.translation = undefined;
     this.rotation = undefined;
@@ -239,5 +244,6 @@ export default class FireEffect {
     }; //清除事件
     this.viewer.scene.primitives.remove(this.particleSystem); //删除粒子对象
     this.viewer.entities.remove(this.entity); //删除entity
+    this.camera.changed.removeEventListener(this.cameraChangedCallback);//清除相机监听火焰距离事件
   }
 }
