@@ -11,7 +11,7 @@ import * as Cesium from "cesium";
 import CesiumTerrainProviderEdit from "./utils/cesiumCtrl/flat/CesiumTerrainProviderEdit.js";
 
 Cesium.Ion.defaultAccessToken =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIxYWE5M2QzNy1hNGFjLTQ3YzItYmU0ZS05MDkyODc1MzVhNzAiLCJpZCI6MTE1MDQwLCJpYXQiOjE2Njg1OTA2NDh9.oW-_utGumUSPqYzlWGjhG8hbda-b4UxZdL0_2t4ASig";
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI5MzViODA0NC05MTUzLTQxY2UtYjMzZC1lN2RlY2I1ZDA0MGQiLCJpZCI6MjgzOTA4LCJpYXQiOjE3NDE4NTg1MTF9.2fzqu-Fm6D1SjQeBDXyIhG93Vq5iRo-30MWYG_c0dJ4";
 
 onMounted(() => {
   init();
