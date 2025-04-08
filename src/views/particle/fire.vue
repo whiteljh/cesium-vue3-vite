@@ -19,20 +19,22 @@ const onInit = async () => {
     // 从以度为单位的经度和纬度值返回笛卡尔3位置。
     destination: Cesium.Cartesian3.fromDegrees(120.361, 36.0885, 80),
     orientation: {
+      // 视角方向
       direction: new Cesium.Cartesian3(
         0.7458181136018,
         -0.4270255968894706,
         0.5112773034515067
-      ),
+      ), // 视角方向的方向向量。
+
       up: new Cesium.Cartesian3(
         -0.19274344830978868,
         0.5963500021825172,
         0.7792410654159365
-      ),
+      ), // 视角方向的向上向量。
     },
     duration: 3, // 飞行时间（s）
   });
-  await sleep(3000);
+  await sleep(2000);
   fire = new FireEffect(viewer);
 };
 

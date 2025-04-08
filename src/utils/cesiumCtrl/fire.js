@@ -1,8 +1,42 @@
 import * as Cesium from "cesium";
-//火焰特效
+//火焰特效，//TODO:如何让火焰在摄像机移动一段距离后消失？解答：
+// 粒子系统在Cesium中是通过Cesium.ParticleSystem类实现的。如果你想让火焰特效在一定距离后消失，你可以通过调整粒子的生命周期（life time）或者发射速率（emission rate）来实现这一效果。
+
+// 一种简单的方法是设置一个较小的最大生命值（maximum particle life），这样粒子就会更快地消散。例如：
+
+// particleSystem = new Cesium.ParticleSystem({
+//     image: 'path/to/your/fire-particle.png',
+//     maximumParticleLife: 1.0, // 设置粒子的最大寿命为1秒，这样它们会很快消失
+//     emissionRate: 5,
+//     startColor: new Cesium.Color(1.0, 0.5, 0.0, 1.0),
+//     endColor: new Cesium.Color(0.0, 0.0, 0.0, 0.0)
+// });
+
+// 另外一种方法是动态控制粒子的发射率。当摄像机移动到一定距离时，可以减少或停止粒子的发射。这可以通过监听摄像机的位置变化并相应地更新发射率来实现。
+// 例如，你可以在摄像机的位置更新事件中设置：
+
+// Cesium.Camera.DEFAULT_VIEW_FACTOR = 1000; // 设置摄像机距离物体的默认视图因子为1000米
+// var camera = viewer.scene.camera;
+// camera.positionCartographicChanged.addEventListener(function() {
+//     if (Cesium.Cartesian3.distance(camera.positionWC, someObjectPosition) > 1000) {
+//         particleSystem.emissionRate = 0; // 当摄像机远离物体超过1000米时停止发射粒子
+//     } else {
+//         particleSystem.emissionRate = 5; // 在一定范围内恢复粒子的正常发射率
+//     }
+// });
+
+// 注意：上面的代码示例使用了Cesium的旧版本API。如果你使用的是较新的版本（如1.69或更高），你可能需要使用不同的方法来访问和修改摄像机的属性。以下是一个适用于最新版本的例子：
+
+// const scene = viewer.scene;
+// const camera = scene.camera;
+// let lastDistance = Infinity;
+
+// function updateParticle
+
 export default class FireEffect {
   constructor(viewer) {
     this.viewer = viewer;
+    this.camera = viewer.scene.camera;
     this.viewModel = {
       // emissionRate: 5,
       // gravity: 0.0, //设置重力参数
@@ -25,8 +59,8 @@ export default class FireEffect {
 
       startScale: 1, // 应用于粒子生命开始时的图像的初始比例。
       endScale: 4,
-      minimumParticleLife: 1,
-      maximumParticleLife: 3, // 设置粒子生命可能持续时间的最大边界(以秒为单位)，在此范围内，将随机选择粒子的实际生命。
+      // minimumParticleLife: 1,
+      maximumParticleLife: 1, // 设置粒子生命可能持续时间的最大边界(以秒为单位)，在此范围内，将随机选择粒子的实际生命。
       minimumSpeed: 1,
       maximumSpeed: 8, // 设置以米/每秒为单位的粒子的实际速度将被随机选择的最大边界。
       particleSize: 20,
@@ -43,6 +77,8 @@ export default class FireEffect {
       //选择粒子放置的坐标
       position: Cesium.Cartesian3.fromDegrees(120.36, 36.09),
     });
+    console.log("this.entity.position: ", this.entity.position);
+
     this.init();
   }
 
@@ -51,7 +87,8 @@ export default class FireEffect {
     this.viewer.clock.shouldAnimate = true;
     this.viewer.scene.globe.depthTestAgainstTerrain = false;
     // this.viewer.trackedEntity = this.entity;
-    const minimum = 10, maximum = 20
+    const minimum = 10,
+      maximum = 20;
     var particleSystem = this.scene.primitives.add(
       new Cesium.ParticleSystem({
         // image: "/images/fire-particle.png", //生成所需粒子的图片路径
@@ -92,7 +129,7 @@ export default class FireEffect {
         // 系统的粒子发射器
         emitter: new Cesium.ConeEmitter(Cesium.Math.toRadians(45.0)), //BoxEmitter 盒形发射器，ConeEmitter 锥形发射器，SphereEmitter 球形发射器，CircleEmitter圆形发射器
 
-        image: '/images/fire.png',
+        image: "/images/fire.png",
         startColor: Cesium.Color.RED,
         endColor: Cesium.Color.YELLOW,
         startScale: 1.0,
@@ -107,11 +144,8 @@ export default class FireEffect {
         // maximumParticleLife: 5.0,
         // minimumMass: 1.0,
         // maximumMass: 10.0,
-        emissionRate: 200.0,
-        imageSize: new Cesium.Cartesian2(
-          25,
-          25
-        ),
+        emissionRate: 20.0,
+        imageSize: new Cesium.Cartesian2(25, 25),
         bursts: [
           new Cesium.ParticleBurst({ time: 0.0, minimum, maximum }),
           new Cesium.ParticleBurst({ time: 0.1, minimum, maximum }),
@@ -122,12 +156,27 @@ export default class FireEffect {
           new Cesium.ParticleBurst({ time: 0.6, minimum, maximum }),
           new Cesium.ParticleBurst({ time: 0.7, minimum, maximum }),
           new Cesium.ParticleBurst({ time: 0.8, minimum, maximum }),
-          new Cesium.ParticleBurst({ time: 0.9, minimum, maximum })
+          new Cesium.ParticleBurst({ time: 0.9, minimum, maximum }),
         ],
       })
     );
     this.particleSystem = particleSystem;
     this.preUpdateEvent();
+    this.camera.changed.addEventListener(() => {
+      const distance = Cesium.Cartesian3.distance(
+        this.camera.positionWC,
+        this.entity.position._value
+      );
+      console.log("distance: ", distance);
+
+      if (distance > 1000) {
+        particleSystem.emissionRate = 0; // 当摄像机远离物体超过1000米时停止发射粒子
+      } else {
+        particleSystem.emissionRate = 5; // 在一定范围内恢复粒子的正常发射率
+      }
+    });
+    //也可以使用 帧(渲染)监听代替相机监听事件
+    // this.viewer.scene.postRender.addEventListener(() => {});
   }
 
   //场景渲染事件
@@ -152,7 +201,7 @@ export default class FireEffect {
   }
 
   computeModelMatrix(entity, time) {
-    return entity.computeModelMatrix(time, new Cesium.Matrix4());
+    return entity.computeModelMatrix(time, new Cesium.Matrix4()); //计算模型矩阵，返回一个Cesium.Matrix4对象。该对象的左上角是实体在世界坐标系中的位置，右上角是其旋转，右下角是其缩放比例。
   }
 
   computeEmitterModelMatrix() {
@@ -192,5 +241,3 @@ export default class FireEffect {
     this.viewer.entities.remove(this.entity); //删除entity
   }
 }
-
-
