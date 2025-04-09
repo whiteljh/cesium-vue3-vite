@@ -11,9 +11,16 @@
 <script setup>
 import CesiumVideo from "@/utils/cesiumCtrl/Video.js";
 import * as Cesium from "cesium";
-import { ref } from "vue";
+import { ref,computed } from "vue";
+import { useStore } from "vuex";
+
+// const store = useStore();
+// // 访问Vuex中的状态
+// const __viewer = computed(() => store.state.viewer).value;
+// console.log('__viewer: ', __viewer);
 
 const { __viewer } = window;
+console.log('window: ', window.__viewer);
 const video_dom = ref(null);
 const onStart = () => {
   __viewer.camera.setView({

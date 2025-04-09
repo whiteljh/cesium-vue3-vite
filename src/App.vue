@@ -61,6 +61,8 @@ const init = () => {
 
   // 调试使用
   window.viewer = viewer;
+  window.__viewer = viewer;
+  console.log('window.__viewer: ', window.__viewer);
 
   // 监听点击事件，拾取坐标
   const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
