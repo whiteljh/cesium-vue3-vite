@@ -9,6 +9,24 @@ const EmptyRouterView = () =>
   import("@/views/routerViews/emptyRouterViews.vue");
 const routes = [
   {
+    path: "/customDemo",
+    component: EmptyRouterView,
+    meta: {
+      title: "自定义项目",
+    },
+    children: [
+      {
+        path: "firstDemo",
+        name: "firstDemo",
+        component: () => import("@/views/customDemo/firstDemo.vue"),
+        meta: {
+          title: "第一项目",
+          activePath: "/customDemo/firstDemo",
+        },
+      },
+    ],
+  },
+  {
     path: "/particle",
     component: EmptyRouterView,
     meta: {

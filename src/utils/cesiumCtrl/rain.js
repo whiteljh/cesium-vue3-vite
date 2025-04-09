@@ -36,6 +36,7 @@ class RainEffect {
       },
     });
     this.viewer.scene.postProcessStages.add(this.rainStage);
+
   }
 
   destroy() {
