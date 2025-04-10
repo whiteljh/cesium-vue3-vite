@@ -19,7 +19,7 @@ onMounted(() => {
 const init = () => {
   const viewer = new Cesium.Viewer("cesiumContainer", {
     infoBox: false,
-    timeline: false, // 是否显示时间线控件
+    timeline: true, // 是否显示时间线控件
     // imageryProvider: new Cesium.ArcGisMapServerImageryProvider({
     //   url: "https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer",
     // }),

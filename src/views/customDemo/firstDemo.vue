@@ -37,6 +37,20 @@
         :value="item.value"
       />
     </el-select>
+    <el-select
+      @change="initScene"
+      v-model="state.sceneValue"
+      placeholder="场景"
+      style="width: 100px"
+      clearable
+    >
+      <el-option
+        v-for="item in sceneOptions"
+        :key="item.value"
+        :label="item.label"
+        :value="item.value"
+      />
+    </el-select>
   </div>
 </template>
 
@@ -49,11 +63,15 @@ import * as Cesium from "cesium";
 import { onMounted, onUnmounted, reactive } from "vue";
 
 const { viewer } = window;
-let instance = null;
+
 let state = reactive({
   weatherValue: "",
   modelValue: "",
+  sceneValue: "",
 });
+
+let instance; //天气实例对象
+let model; //模型实例对象
 
 onUnmounted(() => {
   instance.destroy();
@@ -75,7 +93,14 @@ const weatherOptions = [
 const modelOptions = [
   {
     value: "buildArea",
-    label: "建筑区域",
+    label: "渐变建筑区域",
+  },
+];
+
+const sceneOptions = [
+  {
+    value: "lightAnalysis",
+    label: "光源分析",
   },
 ];
 
@@ -102,12 +127,24 @@ const initWeather = (type) => {
 };
 
 const initModel = (type) => {
-
-  let model = null;
   switch (type) {
     case "buildArea":
       model = new InitModelUtils({ viewer, url: "/models/buildArea.json" });
       model.init();
+      model.zoomTo();
+      model.customShader();
+      model.openShadows();
+      break;
+    default:
+      model.destroy();
+      break;
+  }
+};
+
+const initScene = (type) => {
+  switch (type) {
+    case "lightAnalysis":
+
       break;
     default:
       break;
