@@ -51,6 +51,20 @@
         :value="item.value"
       />
     </el-select>
+    <el-select
+      @change="initSpecialization"
+      v-model="state.specializationValue"
+      placeholder="业务"
+      style="width: 100px"
+      clearable
+    >
+      <el-option
+        v-for="item in specializationOptions"
+        :key="item.value"
+        :label="item.label"
+        :value="item.value"
+      />
+    </el-select>
   </div>
 </template>
 
@@ -58,6 +72,9 @@
 import RainEffect from "@/utils/cesiumCtrl/rain.js";
 import FogEffect from "@/utils/cesiumCtrl/fog.js";
 import InitModelUtils from "@/utils/customUtils/initModel.js";
+import InitSceneUtils from "@/utils/customUtils/InitSceneUtils.js";
+import EchartsFlyLineUtils from "@/utils/customUtils/EchartsFlyLineUtils.js";
+import { flightSeries1, flightSeries2 } from "@/assets/echartsSeries.js";
 import * as Cesium from "cesium";
 
 import { onMounted, onUnmounted, reactive } from "vue";
@@ -68,16 +85,19 @@ let state = reactive({
   weatherValue: "",
   modelValue: "",
   sceneValue: "",
+  specializationValue: "",
 });
 
-let instance; //天气实例对象
-let model; //模型实例对象
+let weatherInstance; //天气实例对象
+let modelInstance; //模型实例对象
+let sceneInstance; //场景实例对象
+let specializationInstance; //业务实例对象
 
 onUnmounted(() => {
-  instance.destroy();
+  // weatherInstance.destroy();
 });
 onMounted(() => {
-  //   instance.show(false);
+  //   weatherInstance.show(false);
 });
 
 const weatherOptions = [
@@ -96,32 +116,45 @@ const modelOptions = [
     label: "渐变建筑区域",
   },
 ];
-
 const sceneOptions = [
   {
     value: "lightAnalysis",
-    label: "光源分析",
+    label: "光源分析-增加阴影",
+  },
+];
+const specializationOptions = [
+  {
+    value: "focusEcharts_FlyLine",
+    label: "聚焦-echarts飞线",
+  },
+  {
+    value: "focusEcharts_FlightLine",
+    label: "聚焦-echarts飞机航线",
+  },
+  {
+    value: "baseMap_darkMap",
+    label: "底图-切换暗黑模式",
   },
 ];
 
 const initWeather = (type) => {
-  if (instance) instance.destroy();
+  if (weatherInstance) weatherInstance.destroy();
   switch (type) {
     case "Rain":
-      instance = new RainEffect(viewer, {
+      weatherInstance = new RainEffect(viewer, {
         tiltAngle: -0.2, //倾斜角度
         rainSize: 1.0, // 雨大小
         rainSpeed: 120.0, // 雨速
       });
       break;
     case "Fog":
-      instance = new FogEffect(viewer, {
+      weatherInstance = new FogEffect(viewer, {
         visibility: 0.2,
         color: new Cesium.Color(0.8, 0.8, 0.8, 0.3),
       });
       break;
     default:
-      instance.destroy();
+      weatherInstance.destroy();
       break;
   }
 };
@@ -129,14 +162,16 @@ const initWeather = (type) => {
 const initModel = (type) => {
   switch (type) {
     case "buildArea":
-      model = new InitModelUtils({ viewer, url: "/models/buildArea.json" });
-      model.init();
-      model.zoomTo();
-      model.customShader();
-      model.openShadows();
+      modelInstance = new InitModelUtils({
+        viewer,
+        url: "/models/buildArea.json",
+      });
+      modelInstance.init();
+      modelInstance.zoomTo();
+      modelInstance.customShader();
       break;
     default:
-      model.destroy();
+      modelInstance.destroy();
       break;
   }
 };
@@ -144,9 +179,26 @@ const initModel = (type) => {
 const initScene = (type) => {
   switch (type) {
     case "lightAnalysis":
-
+      sceneInstance = new InitSceneUtils({ viewer });
+      sceneInstance.addShadow();
       break;
     default:
+      sceneInstance.destroy();
+      break;
+  }
+};
+
+const initSpecialization = (type) => {
+  if (specializationInstance) specializationInstance.remove();
+  switch (type) {
+    case "focusEcharts_FlyLine":
+      specializationInstance = EchartsFlyLineUtils(flightSeries1);
+      break;
+    case "focusEcharts_FlightLine":
+      specializationInstance = EchartsFlyLineUtils(flightSeries2);
+      break;
+    default:
+      specializationInstance.remove;
       break;
   }
 };

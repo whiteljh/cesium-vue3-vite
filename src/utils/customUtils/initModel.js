@@ -10,6 +10,7 @@ export default class InitModel {
   init() {
     this.tileset = new Cesium.Cesium3DTileset({
       url: this.url,
+      shadows: Cesium.ShadowMode.ENABLED,
     });
     const that = this;
     this.tileset.readyPromise
@@ -50,17 +51,6 @@ export default class InitModel {
                 }`,
     });
     this.tileset.customShader = customShader;
-  }
-
-  openShadows() {
-    this.tileset.shadows = Cesium.ShadowMode.ENABLED;
-    this.viewer.shadows = true; //是否显示场景阴影
-    this.viewer.scene.globe.enableLighting = true; //是否开启光照
-    // // 固定太阳光源位置
-    // this.viewer.scene.light = new Cesium.DirectionalLight({
-    //   direction: new Cesium.Cartesian3(-0.5, -0.5, -1.0), // 光源方向
-    //   intensity: 2.0, // 光照强度
-    // });
   }
 
   destroy() {

@@ -62,7 +62,7 @@ const init = () => {
   // 调试使用
   window.viewer = viewer;
   window.__viewer = viewer;
-  console.log('window.__viewer: ', window.__viewer);
+  console.log("window.__viewer: ", window.__viewer);
 
   // 监听点击事件，拾取坐标
   const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
@@ -87,6 +87,7 @@ const init = () => {
     <el-container>
       <el-main>
         <div id="cesiumContainer"></div>
+        <div id="customTimeLine"></div>
         <router-view></router-view>
       </el-main>
     </el-container>
@@ -100,6 +101,15 @@ const init = () => {
   bottom: 0;
   left: 0;
   right: 0;
+}
+#customTimeLine {
+  width: 60%;
+  height: 20px;
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  /* background-color: red; */
 }
 
 .el-header {
