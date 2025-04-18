@@ -1,4 +1,4 @@
-/*
+/*NOTE
  * @Description:穿梭路光效果(entity的材质使用MaterialProperty,而primitive使用的是material)
  * @Author: 笙痞77
  * @Date: 2023-01-11 11:19:55

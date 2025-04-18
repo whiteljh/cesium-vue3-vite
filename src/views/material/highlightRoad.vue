@@ -26,7 +26,7 @@ let _dataSource = null;
 const onStart = () => {
   _dataSource = new Cesium.GeoJsonDataSource();
   _dataSource.load(jsonUrl).then(function (dataSource) {
-    const entities = dataSource.entities.values;
+    const entities = dataSource.entities.values;// NOTE:拿到所有实体对象
     // 聚焦
     // viewer.zoomTo(entities);
     for (let i = 0; i < entities.length; i++) {

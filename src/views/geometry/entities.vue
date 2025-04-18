@@ -142,7 +142,7 @@ const addPolylineVolumes = (cornerType, color = "ORANGE") => {
 const addRectangle = () => {
   const rectangle = viewer.entities.add({
     rectangle: {
-      coordinates: Cesium.Rectangle.fromDegrees(-110.0, 20.0, -80.0, 25.0),
+      coordinates: Cesium.Rectangle.fromDegrees(-179.0, -90.0, -80.0, 90.0),
       extrudedHeight: 300000.0,
       height: 100000.0,
       material: Cesium.Color.RED.withAlpha(0.5),
@@ -177,6 +177,7 @@ const addWall = () => {
       ]),
       material: Cesium.Color.RED.withAlpha(0.5),
       outline: true,
+      
     },
   });
   viewer.zoomTo(greenWall);

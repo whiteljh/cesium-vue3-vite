@@ -31,6 +31,7 @@ const getJson = async () => {
 const labelCollection = viewer.scene.primitives.add(
   new Cesium.LabelCollection()
 );
+console.log('labelCollection: ', labelCollection);
 const colorArrs = [
   "AQUAMARINE",
   "BEIGE",
@@ -85,9 +86,10 @@ const addDataToGlobe = (features, pointRes) => {
     );
     const carter3Position = Cesium.Cartesian3.fromDegrees(
       ...p["geometry"]["coordinates"],
-      1500
+      15000
     );
     areaPointCenter.push(p["geometry"]["coordinates"]);
+    //NOTE:如何实现城市上空标签
     labelCollection.add({
       text: curFeatures["properties"]["name"],
       font: "bold 15px Microsoft YaHei",
@@ -97,6 +99,8 @@ const addDataToGlobe = (features, pointRes) => {
       verticalOrigin: Cesium.VerticalOrigin.CENTER,
       // 水平对齐方式
       horizontalOrigin: Cesium.HorizontalOrigin.LEFT,
+      showBackground:true,
+      backgroundColor: Cesium.Color.fromCssColorString("#666666"),
     });
   }
 

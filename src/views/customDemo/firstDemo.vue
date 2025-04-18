@@ -65,6 +65,20 @@
         :value="item.value"
       />
     </el-select>
+    <el-select
+      @change="initSpecialEffect"
+      v-model="state.specialEffectValue"
+      placeholder="特效"
+      style="width: 100px"
+      clearable
+    >
+      <el-option
+        v-for="item in specialEffectOptions"
+        :key="item.value"
+        :label="item.label"
+        :value="item.value"
+      />
+    </el-select>
   </div>
 </template>
 
@@ -74,7 +88,12 @@ import FogEffect from "@/utils/cesiumCtrl/fog.js";
 import InitModelUtils from "@/utils/customUtils/initModel.js";
 import InitSceneUtils from "@/utils/customUtils/InitSceneUtils.js";
 import EchartsFlyLineUtils from "@/utils/customUtils/EchartsFlyLineUtils.js";
+import modifyMap from "@/utils/cesiumCtrl/modifyMap.js";
 import { flightSeries1, flightSeries2 } from "@/assets/echartsSeries.js";
+import {
+  TrackMatte,
+  SquareWall,
+} from "@/utils/customUtils/SpecialEffectUtils.js";
 import * as Cesium from "cesium";
 
 import { onMounted, onUnmounted, reactive } from "vue";
@@ -86,12 +105,14 @@ let state = reactive({
   modelValue: "",
   sceneValue: "",
   specializationValue: "",
+  specialEffectValue: "",
 });
 
 let weatherInstance; //天气实例对象
 let modelInstance; //模型实例对象
 let sceneInstance; //场景实例对象
 let specializationInstance; //业务实例对象
+let specialEffectInstance; //特效实例对象
 
 onUnmounted(() => {
   // weatherInstance.destroy();
@@ -134,6 +155,16 @@ const specializationOptions = [
   {
     value: "baseMap_darkMap",
     label: "底图-切换暗黑模式",
+  },
+];
+const specialEffectOptions = [
+  {
+    value: "TrackMatte",
+    label: "特效球体",
+  },
+  {
+    value: "TrackMatte_wall", //查看fence.vue的文件
+    label: "特效墙体",
   },
 ];
 
@@ -197,11 +228,54 @@ const initSpecialization = (type) => {
     case "focusEcharts_FlightLine":
       specializationInstance = EchartsFlyLineUtils(flightSeries2);
       break;
+    case "baseMap_darkMap":
+      specializationInstance = modifyMap({ viewer, style: "dark" }); //dark为暗黑模式，???为明亮模式;
     default:
       specializationInstance.remove;
       break;
   }
 };
+
+const initSpecialEffect = (type) => {
+  if (specialEffectInstance) specialEffectInstance.destroy();
+  switch (type) {
+    case "TrackMatte":
+      // 特效球体
+      specialEffectInstance = new TrackMatte({
+        viewer,
+        id: "TrackMatte",
+        shortwaveRange: 10000.0,
+        position: [-75, 39],
+      });
+      specialEffectInstance.reorientate();
+      break;
+    case "TrackMatte_wall":
+      // 特效墙体
+      specialEffectInstance = new SquareWall({
+        viewer,
+      });
+      specialEffectInstance.init();
+      break;
+    default:
+      specialEffectInstance.destroy();
+      break;
+  }
+};
+
+const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
+handler.setInputAction(function (click) {
+  console.log(click);
+  const cartesian = viewer.scene.camera.pickEllipsoid(click.position);
+  if (cartesian) {
+    console.log("笛卡尔坐标系：", Cesium.Cartographic.fromCartesian(cartesian));
+  }
+
+  let windowPosition = Cesium.SceneTransforms.worldToWindowCoordinates(
+    viewer.scene,
+    cartesian
+  );
+  console.log("windowPosition: ", windowPosition);
+}, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
 </script>
 
 <style lang="less" scoped>
