@@ -24,6 +24,15 @@ const routes = [
           activePath: "/customDemo/firstDemo",
         },
       },
+      {
+        path: "turfDemo",
+        name: "turfDemo",
+        component: () => import("@/views/customDemo/turfDemo.vue"),
+        meta: {
+          title: "turf项目",
+          activePath: "/customDemo/turfDemo",
+        },
+      },
     ],
   },
   {
