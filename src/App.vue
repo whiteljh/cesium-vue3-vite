@@ -20,6 +20,8 @@ const init = () => {
   const viewer = new Cesium.Viewer("cesiumContainer", {
     infoBox: false,
     timeline: true, // 是否显示时间线控件
+    selectionIndicator: true, // 是否显示选中对象的信息框
+
     // imageryProvider: new Cesium.ArcGisMapServerImageryProvider({
     //   url: "https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer",
     // }),
@@ -34,11 +36,11 @@ const init = () => {
     // contextOptions: {
     //   requestWebgl1: true,
     // },
-    baseLayer: Cesium.ImageryLayer.fromProviderAsync(
-      Cesium.ArcGisMapServerImageryProvider.fromBasemapType(
-        Cesium.ArcGisBaseMapType.SATELLITE
-      )
-    ),
+    // baseLayer: Cesium.ImageryLayer.fromProviderAsync(
+    //   Cesium.ArcGisMapServerImageryProvider.fromBasemapType(
+    //     Cesium.ArcGisBaseMapType.SATELLITE
+    //   )
+    // ),
   });
   // 不显示底图
   // viewer.imageryLayers.get(0).show = false;
@@ -62,20 +64,9 @@ const init = () => {
   // 调试使用
   window.viewer = viewer;
   window.__viewer = viewer;
+  viewer.scene.debugShowFramesPerSecond = true;
   console.log("window.__viewer: ", window.__viewer);
 
-  // 监听点击事件，拾取坐标
-  const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
-  handler.setInputAction((e) => {
-    const clickPosition = viewer.scene.camera.pickEllipsoid(e.position);
-    const randiansPos = Cesium.Cartographic.fromCartesian(clickPosition);
-    console.log(
-      "经度：" +
-        Cesium.Math.toDegrees(randiansPos.longitude) +
-        ", 纬度：" +
-        Cesium.Math.toDegrees(randiansPos.latitude)
-    );
-  }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 };
 </script>
 

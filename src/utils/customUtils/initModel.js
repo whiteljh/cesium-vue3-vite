@@ -1,32 +1,33 @@
 import * as Cesium from "cesium";
 
-export default class InitModel {
+export default class InitModelUtils {
   constructor({ url, viewer }) {
     this.url = url;
     this.viewer = viewer;
     console.log("this.viewer: ", this.viewer);
     this.init();
   }
-  init() {
-    this.tileset = new Cesium.Cesium3DTileset({
+  async init() {
+    this.tileset = await new Cesium.Cesium3DTileset({
       url: this.url,
-      shadows: Cesium.ShadowMode.ENABLED,
+      shadows: Cesium.ShadowMode.ENABLED, //阴影模式
     });
-    const that = this;
-    this.tileset.readyPromise
-      .then(function (tileset) {
-        console.log("tileset: ", tileset);
-        console.log("that.tileset: ", that.tileset); //和上方tileset输出一样
-        that.viewer.scene.primitives.add(tileset);
-      })
-      .catch(function (error) {
-        console.log(error);
-      });
+    console.log("that.tileset: ", this.tileset); //和上方tileset输出一样
+    this.viewer.scene.primitives.add(this.tileset);
   }
   zoomTo() {
     this.viewer.zoomTo(this.tileset);
   }
   customShader() {
+    this.tileset.style = new Cesium.Cesium3DTileStyle({
+      color: {
+        conditions: [
+          // ["${Elevation} >= 100", "color('rgb(255, 0, 0)',1)"],
+          // ["${Elevation} >= 50", "color('rgb(255, 255, 0)',1)"],
+          ["true", "color('rgb(104, 205, 254)',1)"],
+        ],
+      },
+    });
     let customShader = new Cesium.CustomShader({
       //片元着色器
       fragmentShaderText: `
@@ -52,6 +53,7 @@ export default class InitModel {
     });
     this.tileset.customShader = customShader;
   }
+
 
   destroy() {
     if (!this.viewer || !this.tileset) return;

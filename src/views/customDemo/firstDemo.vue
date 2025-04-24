@@ -6,7 +6,7 @@
  * @LastEditTime: 2025-03-29 20:00:24
 -->
 <template>
-  <div class="container">
+  <div class="container" id="container">
     <!-- <el-button type="primary" @click="start">开始</el-button>
     <el-button type="primary" @click="hide">停止</el-button> -->
     <el-select
@@ -79,6 +79,9 @@
         :value="item.value"
       />
     </el-select>
+    <!-- <div class="tooltipDiv">
+      <div class="tooltipDiv-content">1111</div>
+    </div> -->
   </div>
 </template>
 
@@ -88,6 +91,7 @@ import FogEffect from "@/utils/cesiumCtrl/fog.js";
 import InitModelUtils from "@/utils/customUtils/initModel.js";
 import InitSceneUtils from "@/utils/customUtils/InitSceneUtils.js";
 import EchartsFlyLineUtils from "@/utils/customUtils/EchartsFlyLineUtils.js";
+import ClickGetInfo from "@/utils/customUtils/ClickGetInfo.js";
 import modifyMap from "@/utils/cesiumCtrl/modifyMap.js";
 import { flightSeries1, flightSeries2 } from "@/assets/echartsSeries.js";
 import {
@@ -134,7 +138,7 @@ const weatherOptions = [
 const modelOptions = [
   {
     value: "buildArea",
-    label: "渐变建筑区域",
+    label: "分层渐变建筑区域",
   },
 ];
 const sceneOptions = [
@@ -155,6 +159,10 @@ const specializationOptions = [
   {
     value: "baseMap_darkMap",
     label: "底图-切换暗黑模式",
+  },
+  {
+    value: "clickGetInfo",
+    label: "点击事件及获取摄像头信息",
   },
 ];
 const specialEffectOptions = [
@@ -190,14 +198,14 @@ const initWeather = (type) => {
   }
 };
 
-const initModel = (type) => {
+const initModel = async (type) => {
   switch (type) {
     case "buildArea":
       modelInstance = new InitModelUtils({
         viewer,
         url: "/models/buildArea.json",
       });
-      modelInstance.init();
+      await modelInstance.init();
       modelInstance.zoomTo();
       modelInstance.customShader();
       break;
@@ -230,8 +238,13 @@ const initSpecialization = (type) => {
       break;
     case "baseMap_darkMap":
       specializationInstance = modifyMap({ viewer, style: "dark" }); //dark为暗黑模式，???为明亮模式;
+      break;
+    case "clickGetInfo":
+      specializationInstance = new ClickGetInfo({ viewer });
+      specializationInstance.getCameraInfo();
+      break;
     default:
-      specializationInstance.remove;
+      specializationInstance.remove();
       break;
   }
 };
@@ -270,7 +283,7 @@ handler.setInputAction(function (click) {
     console.log("笛卡尔坐标系：", Cesium.Cartographic.fromCartesian(cartesian));
   }
 
-  let windowPosition = Cesium.SceneTransforms.worldToWindowCoordinates(
+  let windowPosition = Cesium.SceneTransforms.wgs84ToWindowCoordinates(
     viewer.scene,
     cartesian
   );
@@ -278,9 +291,25 @@ handler.setInputAction(function (click) {
 }, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
 </script>
 
-<style lang="less" scoped>
+<style lang="less">
 .container {
   position: absolute;
   z-index: 100;
+  .tooltipDiv {
+    height: 100px;
+    width: 120px;
+    background-color: rgba(0, 0, 0, 0.5);
+    position: absolute;
+    left: 0;
+    right: 0;
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    .tooltipDiv-content {
+      width: 100%;
+      color: white;
+    }
+  }
 }
 </style>
